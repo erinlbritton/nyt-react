@@ -11,6 +11,7 @@ import { Input, TextArea, FormBtn } from "../../components/Form";
 class Articles extends Component {
   state = {
     articles: [],
+    savedArticles: [],
     topic: "",
     startYear: "",
     endYear: "" 
@@ -22,9 +23,7 @@ class Articles extends Component {
 
   loadArticles = () => {
     API.getArticles()
-      .then(res =>
-        this.setState({ articles: res.data, title: "", author: "", date: "" })
-      )
+      .then(res => this.setState({ savedArticles: res.data, title: "", author: "", date: "" }))
       .catch(err => console.log(err));
   };
 
@@ -37,9 +36,9 @@ class Articles extends Component {
   saveArticle = (id) => {
     const article = this.state.articles.filter(article => article.id === id);
     console.log(article);
-    API.saveArticle(article);
-    //  this.loadArticles())
-      // .catch(err => console.log(err));
+    API.saveArticle(article)
+      .then(res => this.loadArticles())
+      .catch(err => console.log(err));
   };
 
   handleInputChange = event => {
@@ -72,6 +71,7 @@ class Articles extends Component {
   render() {
     return (
       <Container>
+      <br />
       <Row>
           <Col size="md-12">
             <form>
@@ -102,10 +102,12 @@ class Articles extends Component {
             </form>
           </Col>
       </Row>
+      <br />
       <Row>
-          <Col size="md-12">
-            {this.state.articles.filter(article => !article.saved).length ? (
+          <Col size="md-6">
+            {this.state.articles.length ? (
               <List>
+              <div className="card card-header"><h3>Search Results</h3></div>
                 {this.state.articles.map(article => (
                   <ListItem key={article.id}>
                     <a href={article.url} target="blank">
@@ -118,15 +120,14 @@ class Articles extends Component {
                 ))}
               </List>
             ) : (
-              <h3>No Results to Display</h3>
+              <div className="card card-header"><h3>No Search Results to Display</h3></div>
             )}
           </Col>
-      </Row>
-      <Row> 
-          <Col size="md-12">
-            {this.state.articles.filter(article => article.saved).length ? (
+          <Col size="md-6">
+            {this.state.savedArticles.length ? (
               <List>
-                {this.state.articles.map(article => (
+              <div className="card card-header"><h3>Saved Articles</h3></div>
+                {this.state.savedArticles.map(article => (
                   <ListItem key={article.id}>
                     <a href={article.url} target="blank">
                       <strong>
@@ -138,7 +139,7 @@ class Articles extends Component {
                 ))}
               </List>
             ) : (
-              <h3>No Saved Results to Display</h3>
+              <div className="card card-header"><h3>No Saved Articles to Display</h3></div>
             )}
           </Col>
       </Row>
